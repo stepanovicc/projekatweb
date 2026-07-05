@@ -1,0 +1,14 @@
+# Composer zavisnosti (instaliraju se sa: composer install)
+/vendor/
+
+# Konfiguracija sa lozinkama - NIKAD na GitHub
+db_config.php
+
+# Logovi i sistemski fajlovi
+*.log
+.DS_Store
+Thumbs.db
+
+# SQL dumpovi sa realnim podacima (po zelji)
+job.sql
+job_server.sql
