@@ -1,133 +1,98 @@
-# IT Job Portal – Setup Guide
+# IT Job Portal
 
-## Requirements
-- XAMPP (PHP 8.1+, MySQL, Apache)
-- Composer (https://getcomposer.org/)
+Veb portal za oglašavanje IT poslova koji povezuje kompanije sa kandidatima.
+Projekat iz predmeta **Web programiranje** — Visoka tehnička škola strukovnih studija, Subotica.
 
----
+## Opis
 
-## Step 1: Copy project files
+Portal omogućava kompanijama da objavljuju oglase za posao, a kandidatima da pretražuju
+oglase i konkurišu na njih. Sistem razlikuje četiri tipa korisnika, pri čemu svaki ima
+svoj skup dozvoljenih akcija:
 
-1. Copy the entire `job_portal` folder into:
+- **Gost** — pregled i pretraga oglasa
+- **Kandidat** — konkurisanje na oglase, uređivanje profila
+- **Kompanija** — objavljivanje oglasa, pregled prijavljenih kandidata
+- **Administrator** — upravljanje korisnicima, kategorijama i odobravanje oglasa
+
+## Tehnologije
+
+- **PHP 8.1+** (OOP, PDO sloj za pristup bazi)
+- **MySQL** (utf8mb4)
+- **HTML5, CSS3, Bootstrap 5** (responzivan interfejs)
+- **JavaScript, Fetch API** (asinhrona pretraga, provera e-maila, konkurisanje)
+- **PHPMailer** (SMTP — aktivacija naloga i resetovanje lozinke)
+- **Composer** (upravljanje zavisnostima)
+
+## Funkcionalnosti
+
+- Registracija kandidata i kompanija sa aktivacijom naloga putem e-maila
+- Prijava, odjava, resetovanje zaboravljene lozinke (token sa rokom važenja)
+- Pretraga oglasa po ključnoj reči, kategoriji i lokaciji (asinhrono, bez osvežavanja)
+- Objavljivanje oglasa (kompanija) uz odobrenje administratora
+- Konkurisanje na oglas jednim klikom, uz sprečavanje duplih prijava
+- Uređivanje korisničkog profila i promena lozinke
+- Administratorski panel sa statistikom i upravljanjem sadržajem
+
+## Bezbednost
+
+- Lozinke heširane bcrypt algoritmom (cost 12)
+- Zaštita od SQL injection kroz PDO pripremljene upite
+- Zaštita od CSRF napada tokenima po sesiji
+- Provera aktivacije i blokade naloga pri prijavi
+
+## Pokretanje (lokalno)
+
+Potreban je XAMPP (Apache, MySQL, PHP 8.1+) i Composer.
+
+1. Kloniraj repozitorijum u `htdocs` folder:
    ```
-   C:\xampp\htdocs\job_portal
+   git clone https://github.com/stepanovicc/projekatweb.git job_portal
    ```
 
----
-
-## Step 2: Install PHPMailer via Composer
-
-1. Open **CMD** or **PowerShell**
-2. Navigate to your project folder:
+2. Instaliraj zavisnosti:
    ```
-   cd C:\xampp\htdocs\job_portal
-   ```
-3. Run:
-   ```
+   cd job_portal
    composer install
    ```
-   This creates a `vendor/` folder with PHPMailer inside.
 
----
+3. Napravi bazu i uvezi strukturu:
+   - u phpMyAdmin-u kreiraj bazu `job`
+   - uvezi priloženi SQL dump (struktura + osnovni podaci)
 
-## Step 3: Import the database
+4. Podesi konfiguraciju:
+   - kopiraj `db_config.example.php` u `db_config.php`
+   - upiši svoje podatke o bazi, `BASE_URL` i SMTP nalog
 
-1. Open **phpMyAdmin**: http://localhost/phpmyadmin
-2. Click **New** → create database called `job` with charset `utf8mb4_unicode_ci`
-3. Select the `job` database
-4. Click **Import** → choose `job.sql` → click **Go**
+5. Otvori u browseru:
+   ```
+   http://localhost/job_portal/
+   ```
 
----
+## Pristup za administratora
 
-## Step 4: Configure the project
+Nakon uvoza osnovnih podataka:
 
-Open `db_config.php` and update:
+- **E-mail:** `admin@jobportal.com`
+- **Lozinka:** `Admin123!`
 
-```php
-define('SMTP_USER', 'your_gmail@gmail.com');
-define('SMTP_PASS', 'your_app_password');  // Gmail App Password, NOT your real password
-define('SMTP_FROM', 'your_gmail@gmail.com');
-```
-
-### How to get a Gmail App Password:
-1. Go to https://myaccount.google.com/security
-2. Enable 2-Step Verification
-3. Go to "App Passwords" → generate one for "Mail"
-4. Paste that 16-char password into `SMTP_PASS`
-
----
-
-## Step 5: Run the project
-
-1. Start **Apache** and **MySQL** in XAMPP Control Panel
-2. Open: http://localhost/job_portal/
-3. Admin login:
-   - Email: `admin@jobportal.com`
-   - Password: `Admin123!`
-
----
-
-## Project Structure
+## Struktura projekta
 
 ```
-job_portal/
-├── index.php              ← Home page
-├── jobs.php               ← Browse jobs
-├── job.php                ← Single job detail
-├── register.php           ← Register
-├── login.php              ← Login
-├── logout.php             ← Logout
-├── activate.php           ← Email activation
-├── forgot_password.php    ← Forgot password
-├── reset_password.php     ← Reset password
-├── profile.php            ← User profile
-├── post_job.php           ← Company posts job
-├── db_config.php          ← DB + SMTP config ← EDIT THIS
-├── composer.json          ← Dependencies
-├── job.sql                ← Database schema + seed
-├── css/
-│   └── style.css
-├── js/
-│   └── main.js
+├── admin/            # administratorski panel
+├── css/              # stilovi
+├── js/               # JavaScript (Fetch API)
+├── includes/         # zaglavlje, podnožje, autentikacija
 ├── php/
-│   ├── classes/
-│   │   ├── User.php
-│   │   ├── JobListing.php
-│   │   ├── Category.php
-│   │   └── Mailer.php
-│   └── ajax/
-│       ├── check_email.php
-│       └── get_jobs.php
-├── includes/
-│   ├── auth.php
-│   ├── header.php
-│   └── footer.php
-└── admin/
-    ├── index.php          ← Admin dashboard
-    ├── jobs.php           ← Manage jobs
-    ├── users.php          ← Manage users
-    └── categories.php     ← Manage categories
+│   ├── ajax/         # AJAX endpointi
+│   └── classes/      # klase (User, JobListing, Category, ...)
+├── vendor/           # Composer zavisnosti (nije u repozitorijumu)
+├── index.php         # početna strana
+├── db_config.php     # konfiguracija (nije u repozitorijumu)
+└── db_config.example.php  # primer konfiguracije
 ```
 
----
+## Napomena
 
-## User Roles
-
-| Role      | What they can do |
-|-----------|-----------------|
-| Guest     | Browse jobs, register |
-| User      | Browse jobs, edit profile, contact company |
-| Company   | All user actions + post jobs |
-| Admin     | Approve jobs, manage users & categories |
-
----
-
-## Notes for submission
-
-- All passwords hashed with **bcrypt** (PASSWORD_BCRYPT, cost 12)
-- CSRF tokens on all forms
-- XSS prevention with `htmlspecialchars()` everywhere
-- SQL injection prevention with PDO prepared statements
-- Responsive via Bootstrap 5
-- Fetch API used for: live job search, email availability check
-- PHPMailer used for: activation emails, password reset emails
+Fajl `db_config.php` sa stvarnim lozinkama namerno nije u repozitorijumu
+(nalazi se u `.gitignore`). Za rad aplikacije potrebno ga je kreirati lokalno
+prema priloženom primeru `db_config.example.php`.
